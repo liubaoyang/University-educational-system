@@ -1,0 +1,228 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Educational system</title>
+    <link rel="icon" href="/static/title.png" type="image/x-icon"/>
+    <script src="{% static 'jquery-3.3.1.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="//at.alicdn.com/t/font_716483_nep1fslj2ld.css">
+    <link rel="stylesheet" type="text/css" href="../../static/font-awesome-4.7.0/css/font-awesome.min.css">
+    {% block head %}
+    {% endblock %}
+    <style>
+        *{
+            margin:0;
+            padding: 0;
+        }
+        .head{
+            width:100%;
+            height:45px;
+            background: black;
+            color: white;
+            line-height: 45px;
+        }
+        .left{
+            position: fixed;
+            top:45px;
+            background: grey;
+            color: black;
+            left: 0;
+            width:150px;
+            bottom: 0;
+        }
+        .body{
+            position: fixed;
+            top:45px;
+            background: white;
+            color: black;
+            right: 0;
+            left: 150px;
+            bottom: 0;
+            overflow: auto;
+        }
+        .leftul{
+            list-style: none;
+            text-align: center;
+        }
+        .left-li{
+            text-align: center;
+            margin: 50px 0;
+        }
+        .left-a{
+            font-size: 20px;
+            text-decoration: none;
+            display: block;
+        }
+        .left-a:hover{
+            color: red;
+            background: gold;
+        }
+        .left-a-active{
+             color: red;
+             background: gold;
+        }
+        ul{
+            list-style: none;
+        }
+        .top-ul{
+            float: right;
+            margin-right: 20px;
+            height: 45px;
+        }
+        .profile{
+            height: 30px;
+            width: 30px;
+            border-radius: 50%;
+            vertical-align: middle;
+            margin-bottom: 3px;
+        }
+        .shade,.shade2{
+            display: block;
+            position: fixed;
+            top:0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: black;
+            opacity: 0.2;
+        }
+        .hide{
+            display: none;
+        }
+        .dialog,.dialog2{
+            position: fixed;
+            width: 500px;
+            height: 250px;
+            z-index: 101;
+            background: aqua;
+            top:50%;
+            left: 50%;
+            margin-top: -150px;
+            margin-left: -300px;
+            border: 1px solid red;
+        }
+        ._form{
+            border: gold 1px solid;
+            width: 45%;
+            background-color: gainsboro;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            margin-top: 20px;
+            margin-left: 145px;
+            padding-bottom: 3px;
+        }
+        ._sousuo{
+            width:82%;
+            height: 65%;
+        }
+        ._add{
+            display: inline-block;
+            margin-left: 280px;
+            padding-left: 10px;
+            background-color: gainsboro;
+            height: 30px;
+            line-height: 30px;
+            border-radius: 15px;
+            width: 100px
+        }
+        .closedlg{
+            float: right;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+
+        }
+        .closedlg:hover{
+            background-color: red;
+        }
+        {% block style %}
+        {% endblock %}
+    </style>
+</head>
+<body>
+    <div class="head">
+        <ul class="top-ul">
+            <li class="top-li">
+                <i style="display: inline-block"><img class="profile" src="{% static 'girl.jpg' %}"></i>
+{#                <i style="display: inline-block"><img class="profile" src="/static/girl.jpg"></i>#}
+                <span>欢迎<span style="color: red">{{ usrname }}</span>登陆</span>
+            </li>
+        </ul>
+
+    </div>
+    <div class="left">
+        <ul class="leftul">
+            <li id="student" class="left-li"><a class="left-a" href="/student/">学生管理</a></li>
+            <li id="classes" class="left-li"><a  class="left-a" href="/cls/1.html/">班级管理</a></li>
+            <li id="teacher" class="left-li"><a  class="left-a" href="/teacher/1.html">老师管理</a></li>
+        </ul>
+    </div>
+    <div class="body">
+        <div style="margin-left: 300px">
+            <form action="" class="_form" style="display: inline-block">
+                <i class="iconfont icon-search1"></i>
+                <input type="text" class="_sousuo">
+                <input type="submit" value="搜索">
+            </form>
+            <div class="_add">
+            <a class="addinfo"  href="#" style="text-decoration:none;">添加信息</a>
+            <div style="display: inline-block;width:2px;height: 20px;background-color: blue;vertical-align: middle;margin-bottom: 3px"></div>
+                <a class="addinfo" href="#"><i class="fa fa-plus" style="display: inline-block;height: 30px;
+            text-align: center;line-height: 30px;vertical-align: middle;"></i></a>
+            </div>
+        </div>
+        <div>
+            {% block body %}
+            {% endblock %}
+        </div>
+    </div>
+    <div class="shade hide"></div>
+    <div class="dialog hide">
+        <div style="background-color: white;height: 30px;width: 100%;line-height: 30px;">
+            <span class="dlg-title" style="margin-left: 5px"></span>
+            <div class="closedlg"><i class="fa fa-times fa-fw" style="display: inline-block;"></i></div>
+        </div>
+
+        <div style="width: 80%;text-align: center;margin-top: 30px;margin-left: 10%;">
+                <i class="icon"></i>
+                <span class="dlg-text"></span>
+               {% block dialog %}
+               {% endblock %}
+        </div>
+    </div>
+
+    <script>
+        {#$("button").click(function () {#}
+        {#    $(".shade").addClass("hide")#}
+        {#    $(".dialog").addClass("hide")#}
+       {% block JS %}
+       {% endblock %}
+        $(".closedlg").click(function () {
+            $(".shade").addClass("hide");
+            $(".dialog").addClass("hide");
+        })
+
+        $(".addinfo").click(function (event) {
+             event.preventDefault();
+            $.post("/add/property/",{csrfmiddlewaretoken: '{{ csrf_token }}'},function (data) {
+                if(data=="err")
+                {
+                    $(".shade").removeClass("hide");
+                    $(".dialog").removeClass("hide");
+                    $(".dlg-title").text("提示");
+                    $(".icon").addClass(" fa fa-warning fa-lg")
+                    $(".dlg-text").text("对不起，您没有操作权限！")
+                }
+                else
+                {
+                    window.location.href="/add/{{ addwhich }}";
+                }
+            })
+        })
+    </script>
+</body>
+</html>

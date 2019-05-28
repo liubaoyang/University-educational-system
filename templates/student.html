@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+{% block head %}
+    <title> student</title>
+{#    <link rel="stylesheet" type="text/css" href="../../static/font-awesome-4.7.0/css/font-awesome.min.css">#}
+{%  endblock %}
+{% block style %}
+    table{
+        margin-left:auto;
+        margin-right:auto;
+        text-align:center;
+        border:blue
+    }
+    td{
+{#      border:solid 1px red;#}
+{#      margin:0;#}
+    }
+    .page-link{
+        height:30px;
+        line-height:30px;
+        text-align:center;
+    {#           border:1px solid red;#}
+        margin-bottom:30px;
+        margin-top:10px;
+    }
+    .page-link a{
+        margin:0px 5px;
+        border:1px solid #999;
+        text-decoration:none;
+        display:inline-block;
+        width:30px;
+    }
+    .content{
+        color:blue;
+        text-align:center;
+        margin-top:100px;
+    }
+
+{%  endblock%}
+{% block body %}
+    <table border="1" cellspacing="0">
+        <tr>
+            <th>姓名</th>
+            <th style="width: 80px">班级名称</th>
+            <th style="width: 40px">性别</th>
+            <th style="width: 40px">年龄</th>
+            <th style="width: 40px">电话</th>
+            <th>QQ</th>
+            <th style="width: 40px">学校</th>
+            <th style="width: 40px">家庭住址</th>
+            <th style="width: 80px">当前住址</th>
+            <th style="width: 80px">当前进度</th>
+            <th style="width: 40px">工作</th>
+            <th style="width: 80px">备注信息</th>
+            <th style="width: 40px">操作</th>
+        </tr>
+        {% for i in students %}
+            <tr>
+                <td name="name">{{ i.name }}</td>
+                <td name="clsname">{{ i.cls }}</td>
+                <td name="sex">{{ i.sex }}</td>
+                <td name="age">{{ i.age }}</td>
+                <td name="phonenum">{{ i.phonenum }}</td>
+                <td name="qq">{{ i.qq }}</td>
+                <td name="school">{{ i.school }}</td>
+                <td name="homeaddr">{{ i.homeaddr }}</td>
+                <td name="addr">{{ i.addr }}</td>
+                <td name="progress">{{ i.progress }}</td>
+                <td name="job">{{ i.job }}</td>
+                <td name="remark">{{ i.remark }}</td>
+                <td style="width: 100px"><a class="edit">编辑&nbsp&nbsp&nbsp&nbsp</a><a class="del">删除</a></td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <div class="page-link">
+        {{ pagenum|safe}}
+    </div>
+{%  endblock %}
+{% block dialog %}
+    <div id="input-box" class="hide" style="margin-top: 50px">
+       <p>班级名称 <input name="clsname"></p>
+       <p>开班日期 <input name="start"></p>
+       <p>当前进度 <input name="progress"></p>
+       <p>授课老师
+            <select name="teachers" multiple="multiple"></select>
+       </p>
+       <p>备注信息 <input name="remark"></p>
+    </div>
+
+    <div id="bt-box" class="hide" style="margin-top: 50px">
+        <button name="confirm" style="height: 40px;width: 80px;margin-right: 50px">确定</button>
+        <button name="cancle" style="height: 40px;width: 80px">取消</button>
+   </div>
+
+{% endblock %}
+
+{% block JS %}
+    $("#student").addClass("left-a-active")
+     var studentName;
+    var postData={'csrfmiddlewaretoken':'{{ csrf_token }}'};
+    var recordId;
+    $(".del").click(function(){
+        ele=$(this);
+        console.log(ele)
+        $.post("/clssident/",{csrfmiddlewaretoken: '{{ csrf_token }}'},function (data) {
+                if(data=="err")
+                {
+                    $(".shade").removeClass("hide");
+                    $(".dialog").removeClass("hide");
+                    $(".dlg-title").text("提示");
+                    $(".icon").addClass(" fa fa-warning fa-lg")
+                    $(".dlg-text").text("对不起，您没有操作权限！")
+                }
+
+                else
+                {
+                    studentName=ele.parent().prevAll("td[name='name']").text();
+                    $(".shade").removeClass("hide");
+                    $(".dialog").removeClass("hide");
+                    $("#bt-box").removeClass("hide");
+                    $("#input-box").addClass("hide");
+                    $(".icon").addClass("fa fa-exclamation-circle fa-2x");
+                    $(".dlg-text").text("确定删除"+studentName+"?");
+                    $(".dlg-text").css("font-size","30px");
+                    $(".dlg-title").text("提示");
+                    postData['op']='del';
+                    postData['name']=studentName;
+                }
+         })
+    })
+
+    $("button[name='confirm']").click(function(){
+         $("#bt-box").addClass("hide");
+         $("#input-box").addClass("hide");
+         var formdata={};
+         if(postData.op !='del')
+         {
+             postData={'csrfmiddlewaretoken':'{{ csrf_token }}'};
+             $("#input-box input").each(function(){
+                formdata[$(this).attr('name')] = $(this).val()
+            })
+            var teachers=[];
+            $("select[name='teachers'] option:selected").each(function(){
+              teachers.push($(this).text());
+            })
+            formdata.teacherList=teachers;
+            formdata.id=recordId;
+            postData.op='edit';
+            postData.formdata=JSON.stringify(formdata)
+            console.log(postData)
+         }
+
+         $.post("/studentoperation/",postData,function(data){
+{#            console.log(postData)#}
+            if(data=='ok')
+            {
+                $(".icon").removeClass("fa fa-exclamation-circle fa-2x");
+                $(".icon").addClass("fa fa-check-circle fa-2x");
+                $(".dlg-text").text("操作成功");
+                $(".closedlg").click(function(){
+                    window.location.reload();
+                })
+            }
+            else
+            {
+                $(".dlg-text").text("操作失败！");
+            }
+        })
+    })
+
+    $("button[name='cancle']").click(function(){
+        $(".shade").addClass("hide");
+        $(".dialog").addClass("hide");
+    })
+
+
+     $(".edit").click(function(){
+         ele=$(this);
+         $.post("/clssident/",{csrfmiddlewaretoken: '{{ csrf_token }}'},function (data) {
+                if(data=="err")
+                {
+                    $(".shade").removeClass("hide");
+                    $(".dialog").removeClass("hide");
+                    $(".dlg-title").text("提示");
+                    $(".icon").addClass(" fa fa-warning fa-lg")
+                    $(".dlg-text").text("对不起，您没有操作权限！")
+                }
+                else
+                {
+                     $(".shade").removeClass("hide");
+                     $(".dialog").removeClass("hide");
+                     $("#input-box").removeClass("hide");
+                     $("#bt-box").removeClass("hide");
+                     $(".dialog").css({"height":"350px","margin-top":"-175px"});
+                     $(".dlg-title").text("请填写信息");
+                     $(".dlg-text").text("");
+                     $(".icon").removeClass("fa fa-exclamation-circle fa-2x");
+                     clsName=ele.parent().prevAll("td[name='clsname']").text();
+                     postData['op']='preGet';
+                     postData['name']=clsName;
+                     $.post("/clsoperation/",postData,function(data){
+                          var obj=JSON.parse(data);
+                          ($("select[name='teachers']")[0]).length=0;
+                          for(i in obj.teachers)
+                          {
+                                op= document.createElement("option");
+                                op.innerText=obj.teachers[i];
+                                $("select[name='teachers']").append(op);
+                          }
+                          recordId=obj.id;
+                    })
+
+                    ele.parent().prevAll().each(function(){
+                        console.log(ele)
+                        $("input[name="+$(this).attr('name')+"]").val($(this).text());
+                    })
+                }
+        })
+    })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{%  endblock %}

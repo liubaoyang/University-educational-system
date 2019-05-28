@@ -1,0 +1,212 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="{% static 'jquery-3.3.1.js' %}"></script>
+    <style>
+        .clsss{
+            height: 25px;
+            width: 30%;
+            text-align: center;
+        }
+        input{
+            height: 25px;
+            width: 30%;
+            border-radius: 5px;
+        }
+        .inputbox{
+            height: 30px;
+            margin-top: 10px;
+            {#border: aqua 1px solid;#}
+        }
+        .labal{
+            display: inline-block;
+            height: 20px;
+            width: 100px;
+            text-align: right;
+            margin-right: 7px;
+            {#border: 1px gold solid;#}
+        }
+        textarea{
+            height: 60px;
+            width: 30%;
+        }
+        .homeaddrr{
+            width: 13%;
+            margin-right: 5px;
+
+        }
+        .addrr{
+            width: 13%;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+<div style="text-align: center;margin-top: 5%">
+    <form action="">
+        <div class="inputbox"><span class="labal">名字*：</span><input type="text" name="name"></div>
+        <div class="inputbox"><span class="labal">性别：</span><input type="text" name="sex"></div>
+        <div class="inputbox"><span class="labal">年龄：</span><input type="text" name="age"></div>
+        <div class="inputbox"><span class="labal">班级*：</span>
+            <select name="clss" class="clsss">
+                <option>请选择</option>
+                {% for i in cls%}
+                    <option>{{ i.name }}</option>
+                {% endfor %}
+            </select>
+
+        </div>
+        <div class="inputbox"><span class="labal">电话*：</span><input type="text" name="phonenum"></div>
+        <div class="inputbox"><span class="labal">qq号码：</span><input type="text" name="qq"></div>
+        <div class="inputbox"><span class="labal">毕业学校：</span><input type="text" name="school"></div>
+        <div  style="margin-left:109px;text-align: center;">
+            <div class="inputbox">
+            <span class="labal">家庭住址：</span>
+            <select class="homeaddrr" id="province" ><option>---请选择省---</option></select>
+            <select class="homeaddrr" id="city" > <option>---请选择市---</option></select>
+            <select class="homeaddrr" id="county" > <option>---请选择县---</option></select>
+            </div>
+            <input class="street" type="text" style="width: 40%;margin-left: 110px" name="homeaddr" value="请填写街道信息">
+        </div>
+        <div style="margin-left:109px;text-align: center">
+            <div class="inputbox">
+            <span class="labal">当前住址：</span>
+            <select class="addrr" id="province_" > <option>---请选择省---</option></select>
+            <select class="addrr" id="city_" > <option>---请选择市---</option></select>
+            <select class="addrr" id="county_" > <option>---请选择县---</option></select>
+            </div>
+            <input class="street" type="text" name="addr" style="width: 40%;margin-left: 110px" value="请填写街道信息">
+        </div>
+        <div class="inputbox"><span class="labal">学习进度：</span><input type="text" name="progress"></div>
+        <div class="inputbox"><span class="labal">工作情况：</span><input type="text" name="job"></div>
+        <div class="inputbox" style="height: 65px"><span class="labal">备注：</span><textarea  name="remark"></textarea></div>
+        <div class="inputbox"><input type="submit" value="提交" style="height: 30px;width: 40px;"></div>
+        {% csrf_token %}
+    </form>
+    <script>
+        {% for i in provinces %}
+            op=document.createElement("option");
+            op.innerHTML="{{i}}";
+            $("#province").append(op);
+        {% endfor %}
+        $("#province").change(function ()
+        {
+            options=$("#province").children();
+            for (var i=1;i<options.length;i++)
+            {
+                if(options[i].selected)
+                    {break}
+            }
+             $.post("/add/{{addwhich}}/",{ "pro": options[i].value,"csrfmiddlewaretoken":'{{csrf_token}}'},function (data) {
+            cityname=data.split(",")
+            console.log(cityname)
+            $("#city")[0].options.length=0;
+            for(i in cityname)
+            {
+                if(cityname[i].length>0)
+                {
+                    op = document.createElement("option")
+                    op.innerHTML=cityname[i];
+                    $("#city").append(op);
+                }
+            }
+            citichange();
+        })
+        })
+        function citichange() {
+        options=$("#city")[0]
+        for(var i=0;i < options.length; i++)
+        {
+            if(options[i].selected)
+            {
+                break;
+            }
+        }
+
+        $.post("/add/{{addwhich}}/",{ "city": options[i].value,"csrfmiddlewaretoken":'{{csrf_token}}'},function (data) {
+            countyname=data.split(",")
+            $("#county")[0].options.length=0;
+            for(i in countyname)
+            {
+                if(countyname[i].length>0)
+                {
+                    op = document.createElement("option")
+                    op.innerHTML=countyname[i];
+                    $("#county").append(op);
+                }
+            }
+        })
+        $("#city").change(citichange)
+    }
+
+
+
+    {% for i in provinces %}
+            op=document.createElement("option");
+            op.innerHTML="{{i}}";
+            $("#province_").append(op);
+        {% endfor %}
+        $("#province_").change(function ()
+        {
+            options=$("#province_").children();
+            for (var i=1;i<options.length;i++)
+            {
+                if(options[i].selected)
+                    {break}
+            }
+             $.post("/add/{{addwhich}}/",{ "pro_": options[i].value,"csrfmiddlewaretoken":'{{csrf_token}}'},function (data) {
+            cityname=data.split(",")
+            console.log(cityname)
+            $("#city_")[0].options.length=0;
+            for(i in cityname)
+            {
+                if(cityname[i].length>0)
+                {
+                    op = document.createElement("option")
+                    op.innerHTML=cityname[i];
+                    $("#city_").append(op);
+                }
+            }
+            citichange_();
+        })
+        })
+        function citichange_() {
+        options=$("#city_")[0]
+        for(var i=0;i < options.length; i++)
+        {
+            if(options[i].selected)
+            {
+                break;
+            }
+        }
+        $.post("/add/{{addwhich}}/",{ "city_": options[i].value,"csrfmiddlewaretoken":'{{csrf_token}}'},function (data) {
+            countyname=data.split(",")
+            $("#county_")[0].options.length=0;
+            for(i in countyname)
+            {
+                if(countyname[i].length>0)
+                {
+                    op = document.createElement("option")
+                    op.innerHTML=countyname[i];
+                    $("#county_").append(op);
+                }
+            }
+        })
+            {$("#city_").change(citichange_)}
+    }
+
+    $(".street").focus(function () {
+        if($(this).val()=="请填写街道信息")
+            $(this).val("")
+    })
+    $(".street").blur(function () {
+         if($(this).val()=="")
+             $(this).val("请填写街道信息")
+    })
+    </script>
+</div>
+</body>
+</html>
